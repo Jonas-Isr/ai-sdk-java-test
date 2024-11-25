@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "The Branch to Release From"
+        description: "The branch to release from"
         required: false
         default: "main"
       release-version:
-        description: "The Version to Release"
+        description: "The version to release"
         required: false
 
 env:
