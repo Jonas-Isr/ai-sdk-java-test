@@ -123,6 +123,8 @@ jobs:
     needs: [ bump-version ]
     outputs:
       pr-url: ${{ steps.create-release-notes-pr.outputs.PR_URL }}
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout Code Repository"
