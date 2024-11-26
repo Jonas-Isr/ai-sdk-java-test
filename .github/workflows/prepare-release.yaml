@@ -140,7 +140,6 @@ jobs:
           python .pipeline/scripts/set-release-versions.py --version ${{ needs.bump-version.outputs.new-version }}
           git add .
           git commit -m "Update to version ${{ needs.bump-version.outputs.new-version }}"
-          git pull
           git push
   
       - name: "Create Release Notes"
