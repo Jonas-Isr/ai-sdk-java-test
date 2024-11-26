@@ -186,6 +186,9 @@ jobs:
 
           git commit -m "Reset release notes"
           git push
+        
+    env:
+      GH_TOKEN: ${{ github.token }}
 
   create-code-pr:
     name: "Create Code PR"
