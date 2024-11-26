@@ -159,7 +159,8 @@ jobs:
 
       - name: "Push Release Notes"
 #        working-directory: ./.cloud-sdk-docs
-        run: git push origin release-notes-${{ needs.bump-version.outputs.release-version }}
+        run: git push origin $BRANCH_NAME
+#        run: git push origin release-notes-${{ needs.bump-version.outputs.release-version }}
 
       - name: "Create Release Notes PR"
         id: create-release-notes-pr
