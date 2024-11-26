@@ -127,7 +127,7 @@ jobs:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
           ref: ${{ needs.bump-version.outputs.release-branch }}
           token: ${{ secrets.BOT_SDK_JS_FOR_DOCS_REPO_PR }} # this is needed so that the same token is used when pushing our changes later. Otherwise, our on: push workflows (i.e. our continuous integration) won't be triggered.
 
