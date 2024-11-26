@@ -144,9 +144,9 @@ jobs:
           git config --global user.email "cloudsdk@sap.com"
           git config --global user.name "SAP Cloud SDK Bot"
 
-      - name: "Create Release Notes Branch"
+#      - name: "Create Release Notes Branch"
 #        working-directory: ./.cloud-sdk-docs
-        run: git checkout -B release-notes-${{ needs.bump-version.outputs.release-version }}
+#        run: git checkout -B release-notes-${{ needs.bump-version.outputs.release-version }}
 
       - name: "Create Release Notes"
         run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
