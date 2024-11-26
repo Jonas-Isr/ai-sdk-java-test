@@ -131,7 +131,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.bump-version.outputs.release-branch }}
-#          token: ${{ secrets.BOT_SDK_JS_FOR_DOCS_REPO_PR }}
+          token: ${{ secrets.BOT_SDK_JS_FOR_DOCS_REPO_PR }}
 #      - name: "Checkout Docs Repository"
 #        uses: actions/checkout@v4
 #        with:
@@ -186,9 +186,6 @@ jobs:
 
           git commit -m "Reset release notes"
           git push
-        
-    env:
-      GH_TOKEN: ${{ github.token }}
 
   create-code-pr:
     name: "Create Code PR"
