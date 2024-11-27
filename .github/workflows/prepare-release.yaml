@@ -94,7 +94,7 @@ jobs:
           git tag $TAG_NAME $RELEASE_COMMIT_ID
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
-          git push origin $BRANCH_NAME
+          git push --set-upstream origin $BRANCH_NAME
           git push origin $TAG_NAME
 
   create-release:
