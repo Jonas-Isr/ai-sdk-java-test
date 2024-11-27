@@ -47,27 +47,53 @@ jobs:
       - run: "echo Current Version: ${{ steps.determine-versions.outputs.CURRENT_SNAPSHOT }}"
       - run: "echo New Version: ${{ steps.determine-versions.outputs.NEW_SNAPSHOT }}"
 
-      - name: "Create Release Branch"
+#      - name: "Create Release Branch"
+#        run: |
+          
+      
+#      - name: "Create Release Notes"
+#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }} --folder "docs/release-notes"
+#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
+  
+#      - name: "Commit Release Notes"
+#        run: |
+#          git add .
+#          git commit -m "Add new release notes"
+
+#      - name: "Push Release Notes"
+#        run: git push
+
+#      - name: "Reset Release Notes for Next Version"
+#        run: |
+#          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
+#          git add docs/release-notes/release_notes.md
+
+#          CHANGED_FILES="$(git status -s)"
+#          if [[ -z "$CHANGED_FILES" ]]; then
+#              echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
+#              exit 0
+#          fi
+#          git commit -m "Reset release notes"
+#          git push
+          
+      - name: "Set Release Version to ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
+        id: prepare-release
         run: |
           # NOTE: If you change this pattern here, also adjust perform_release.yml:
           BRANCH_NAME=RELEASE-${{ steps.determine-versions.outputs.RELEASE_VERSION }}
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
           git switch --create $BRANCH_NAME
-      
-      - name: "Create Release Notes"
-        run: python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }} --folder "docs/release-notes"
-#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
-  
-      - name: "Commit Release Notes"
-        run: |
+
+          python .pipeline/scripts/set-release-versions.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}
+          git add .
+          git commit -m "Update to version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
+
+          # Create release notes
+          python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}
           git add .
           git commit -m "Add new release notes"
 
-#      - name: "Push Release Notes"
-#        run: git push
-
-      - name: "Reset Release Notes for Next Version"
-        run: |
+          # Reset release notes for next version
           cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
           git add docs/release-notes/release_notes.md
 
@@ -77,14 +103,6 @@ jobs:
               exit 0
           fi
           git commit -m "Reset release notes"
-#          git push
-          
-      - name: "Set Release Version to ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
-        id: prepare-release
-        run: |
-          python .pipeline/scripts/set-release-versions.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}
-          git add .
-          git commit -m "Update to version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
 
           # We need to get the commit id, and push the branch so the release tag will point at the right commit afterwards
           RELEASE_COMMIT_ID=$(git log -1 --pretty=format:"%H")
