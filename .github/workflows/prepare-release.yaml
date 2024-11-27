@@ -46,7 +46,31 @@ jobs:
       - run: "echo Release Version: ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
       - run: "echo Current Version: ${{ steps.determine-versions.outputs.CURRENT_SNAPSHOT }}"
       - run: "echo New Version: ${{ steps.determine-versions.outputs.NEW_SNAPSHOT }}"
+      - name: "Create Release Notes"
+        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
+  
+      - name: "Commit Release Notes"
+        run: |
+          git add .
+          git commit -m "Add new release notes"
 
+      - name: "Push Release Notes"
+        run: git push
+
+      - name: "Reset Release Notes for Next Version"
+        run: |
+          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
+          git add docs/release-notes/release_notes.md
+
+          CHANGED_FILES="$(git status -s)"
+          if [[ -z "$CHANGED_FILES" ]]; then
+              echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
+              exit 0
+          fi
+  
+          git commit -m "Reset release notes"
+          git push
+          
       - name: "Set Release Version to ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
         id: prepare-release
         run: |
@@ -70,52 +94,9 @@ jobs:
           git push origin $BRANCH_NAME
           git push origin $TAG_NAME
 
-  manage-release-notes:
-      name: "Manage Release Notes"
-      needs: [ bump-version ]
-      outputs:
-        pr-url: ${{ steps.create-code-pr.outputs.PR_URL }}
-      runs-on: ubuntu-latest
-      steps:
-        - name: "Checkout Repository"
-          uses: actions/checkout@v4
-          with:
-            ref: ${{ needs.bump-version.outputs.release-branch }}
-            token: ${{ secrets.BOT_SDK_JS_FOR_DOCS_REPO_PR }} # this is needed so that the same token is used when pushing our changes later. Otherwise, our on: push workflows (i.e. our continuous integration) won't be triggered.
-  
-        - name: "Prepare git"
-          run: |
-            git config --global user.email "cloudsdk@sap.com"
-            git config --global user.name "SAP Cloud SDK Bot"
-        
-        - name: "Create Release Notes"
-          run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
-  
-        - name: "Commit Release Notes"
-          run: |
-            git add .
-            git commit -m "Add new release notes"
-  
-        - name: "Push Release Notes"
-          run: git push
-  
-        - name: "Reset Release Notes for Next Version"
-          run: |
-            cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
-            git add docs/release-notes/release_notes.md
-  
-            CHANGED_FILES="$(git status -s)"
-            if [[ -z "$CHANGED_FILES" ]]; then
-                echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
-                exit 0
-            fi
-  
-            git commit -m "Reset release notes"
-            git push
-
   create-release:
     name: "Create GitHub Release"
-    needs: [ bump-version, manage-release-notes ]
+    needs: [ bump-version ]
     outputs:
       release-name: ${{ steps.create-release.outputs.RELEASE_NAME }}
       release-url: ${{ steps.create-release.outputs.RELEASE_URL }}
@@ -162,7 +143,7 @@ jobs:
           
   create-code-pr:
     name: "Create Code PR"
-    needs: [ bump-version, manage-release-notes, create-release ]
+    needs: [ bump-version, create-release ]
     outputs:
       pr-url: ${{ steps.create-code-pr.outputs.PR_URL }}
     runs-on: ubuntu-latest
@@ -201,7 +182,7 @@ jobs:
 
   handle-failure:
     runs-on: ubuntu-latest
-    needs: [ bump-version, manage-release-notes, create-release, create-code-pr ]
+    needs: [ bump-version, create-release, create-code-pr ]
     permissions:
       contents: write # needed to delete the GitHub release
     if: ${{ failure() }}
