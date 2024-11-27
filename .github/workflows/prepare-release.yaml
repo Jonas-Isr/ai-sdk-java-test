@@ -46,16 +46,25 @@ jobs:
       - run: "echo Release Version: ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
       - run: "echo Current Version: ${{ steps.determine-versions.outputs.CURRENT_SNAPSHOT }}"
       - run: "echo New Version: ${{ steps.determine-versions.outputs.NEW_SNAPSHOT }}"
+
+      - name: "Create Release Branch"
+        run: |
+          # NOTE: If you change this pattern here, also adjust perform_release.yml:
+          BRANCH_NAME=RELEASE-${{ steps.determine-versions.outputs.RELEASE_VERSION }}
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          git switch --create $BRANCH_NAME
+      
       - name: "Create Release Notes"
-        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
+        run: python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }} --folder "docs/release-notes"
+#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
   
       - name: "Commit Release Notes"
         run: |
           git add .
           git commit -m "Add new release notes"
 
-      - name: "Push Release Notes"
-        run: git push
+#      - name: "Push Release Notes"
+#        run: git push
 
       - name: "Reset Release Notes for Next Version"
         run: |
@@ -67,18 +76,12 @@ jobs:
               echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
               exit 0
           fi
-  
           git commit -m "Reset release notes"
-          git push
+#          git push
           
       - name: "Set Release Version to ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
         id: prepare-release
         run: |
-          # NOTE: If you change this pattern here, also adjust perform_release.yml:
-          BRANCH_NAME=RELEASE-${{ steps.determine-versions.outputs.RELEASE_VERSION }}
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          git switch --create $BRANCH_NAME
-
           python .pipeline/scripts/set-release-versions.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}
           git add .
           git commit -m "Update to version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
