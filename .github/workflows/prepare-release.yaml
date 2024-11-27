@@ -46,35 +46,6 @@ jobs:
       - run: "echo Release Version: ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
       - run: "echo Current Version: ${{ steps.determine-versions.outputs.CURRENT_SNAPSHOT }}"
       - run: "echo New Version: ${{ steps.determine-versions.outputs.NEW_SNAPSHOT }}"
-
-#      - name: "Create Release Branch"
-#        run: |
-          
-      
-#      - name: "Create Release Notes"
-#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }} --folder "docs/release-notes"
-#        run: python .pipeline/scripts/release_notes_automation.py --version ${{ needs.bump-version.outputs.release-version }} --folder "docs/release-notes"
-  
-#      - name: "Commit Release Notes"
-#        run: |
-#          git add .
-#          git commit -m "Add new release notes"
-
-#      - name: "Push Release Notes"
-#        run: git push
-
-#      - name: "Reset Release Notes for Next Version"
-#        run: |
-#          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
-#          git add docs/release-notes/release_notes.md
-
-#          CHANGED_FILES="$(git status -s)"
-#          if [[ -z "$CHANGED_FILES" ]]; then
-#              echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
-#              exit 0
-#          fi
-#          git commit -m "Reset release notes"
-#          git push
           
       - name: "Set Release Version to ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
         id: prepare-release
@@ -113,7 +84,7 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
           git push origin $BRANCH_NAME
-          git push --set-upstream origin $TAG_NAME
+          git push origin $TAG_NAME
 
   create-release:
     name: "Create GitHub Release"
@@ -193,6 +164,7 @@ jobs:
           
           PR_URL=$(gh pr create --title "Release ${{ needs.bump-version.outputs.release-version }}" --body "## TODOs
           - [ ] Review the changes in [the release commit]($COMMIT_URL)
+          - [ ] If major release: Update header of `.pipeline/scripts/release_notes_template.md`
           - [ ] Review the [Draft Release](${{ needs.create-release.outputs.release-url }})
           - [ ] Review **and approve** this PR
           - [ ] Trigger the [Perform Release Workflow](${{ github.event.repository.html_url }}/actions/workflows/perform-release.yml)
