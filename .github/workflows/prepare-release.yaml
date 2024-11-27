@@ -89,7 +89,7 @@ jobs:
           git commit -m "Update to version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}"
 
           # Create release notes
-          python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }}
+          python .pipeline/scripts/release_notes_automation.py --version ${{ steps.determine-versions.outputs.RELEASE_VERSION }} --folder "docs/release-notes"
           git add .
           git commit -m "Add new release notes"
 
