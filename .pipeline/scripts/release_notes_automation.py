@@ -102,8 +102,10 @@ if __name__ == '__main__':
 
     target_file = find_target_file(args.version)
 
+
     folder_path = args.folder
     write_release_notes(folder_path, target_file)
 
     # delete (temporary) release-notes file so it does not appear in the released version
     os.remove(file_name)
+    
