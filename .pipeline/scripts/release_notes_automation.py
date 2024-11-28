@@ -107,3 +107,6 @@ if __name__ == '__main__':
     folder_path = args.folder
     # folder_path = "../../" + args.folder
     write_release_notes(folder_path, target_file)
+
+    # delete temporary release-notes file
+    os.remove(file_name)
