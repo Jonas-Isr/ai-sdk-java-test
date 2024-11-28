@@ -64,17 +64,6 @@ jobs:
           git add .
           git commit -m "Add new release notes"
 
-          # Reset release notes for next version
-          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
-          git add docs/release-notes/release_notes.md
-
-          CHANGED_FILES="$(git status -s)"
-          if [[ -z "$CHANGED_FILES" ]]; then
-              echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
-              exit 0
-          fi
-          git commit -m "Reset release notes"
-
           # We need to get the commit id, and push the branch so the release tag will point at the right commit afterwards
           RELEASE_COMMIT_ID=$(git log -1 --pretty=format:"%H")
           echo "RELEASE_COMMIT_ID=$RELEASE_COMMIT_ID" >> $GITHUB_OUTPUT
