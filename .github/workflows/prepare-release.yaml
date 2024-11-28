@@ -64,10 +64,6 @@ jobs:
           git add .
           git commit -m "Add new release notes"
 
-          # Reset release notes for next version
-          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
-          git add docs/release-notes/release_notes.md
-
           CHANGED_FILES="$(git status -s)"
           if [[ -z "$CHANGED_FILES" ]]; then
               echo "[DEBUG] No changes to release_notes.md detected, skipping reset."
@@ -154,9 +150,15 @@ jobs:
       - name: "Set New Version"
         run: |
           python .pipeline/scripts/set-release-versions.py --version ${{ needs.bump-version.outputs.new-version }}
+          
+          # Reset release notes for next version
+          cp .pipeline/scripts/release_notes_template.md docs/release-notes/release_notes.md
+          
           git add .
           git commit -m "Update to version ${{ needs.bump-version.outputs.new-version }}"
           git push
+
+#          git add docs/release-notes/release_notes.md
       
       - name: "Create Code PR"
         run: |
