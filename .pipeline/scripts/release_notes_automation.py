@@ -108,4 +108,3 @@ if __name__ == '__main__':
 
     # delete (temporary) release-notes file so it does not appear in the released version
     os.remove(file_name)
-    
