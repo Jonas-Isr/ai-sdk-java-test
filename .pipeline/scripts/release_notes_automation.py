@@ -86,7 +86,6 @@ def write_release_notes(folder, target_file):
         write_file(absolute_target_file, file)
 
 
-# TODO: Maybe need to change this path depending on the place where the script is running from.
 file_name = "docs/release-notes/release_notes.md"
 
 if __name__ == '__main__':
@@ -103,10 +102,10 @@ if __name__ == '__main__':
 
     target_file = find_target_file(args.version)
 
-    # TODO: Maybe need to change this path depending on the place where the script is running from.
+
     folder_path = args.folder
-    # folder_path = "../../" + args.folder
     write_release_notes(folder_path, target_file)
 
-    # delete temporary release-notes file
+    # delete (temporary) release-notes file so it does not appear in the released version
     os.remove(file_name)
+    
